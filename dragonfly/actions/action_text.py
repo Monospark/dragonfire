@@ -36,7 +36,7 @@ arrow-keys are not part of a text and so cannot be typed using the
 
 
 from .action_base           import DynStrActionBase, ActionError
-from .typeables             import typeables
+from .typeables             import symbols, keys
 from .keyboard              import Keyboard
 from .action_key            import Key
 from ..windows.clipboard    import Clipboard
@@ -68,8 +68,9 @@ class Text(DynStrActionBase):
     _pause_default = 0.02
     _keyboard = Keyboard()
     _specials = {
-                 "\n":   typeables["enter"],
-                 "\t":   typeables["tab"],
+                 " ":    keys["space"],
+                 "\n":   keys["enter"],
+                 "\t":   keys["tab"],
                 }
 
     def __init__(self, spec=None, static=False, pause=_pause_default,
@@ -86,7 +87,7 @@ class Text(DynStrActionBase):
                 typeable = self._specials[character]
             else:
                 try:
-                    typeable = Keyboard.get_typeable(character)
+                    typeable = symbols[character]
                 except ValueError, e:
                     raise ActionError("Keyboard interface cannot type this"
                                       " character: %r (in %r)"

@@ -178,7 +178,7 @@ Key class reference
 
 
 from .action_base  import DynStrActionBase, ActionError
-from .typeables    import typeables
+from .typeables    import keys, symbols
 from .keyboard     import Keyboard
 
 
@@ -209,10 +209,10 @@ class Key(DynStrActionBase):
     _delimiter_characters = ":/"
     _modifier_prefix_delimiter = "-"
     _modifier_prefix_characters = {
-        'a': typeables["alt"],
-        'c': typeables["control"],
-        's': typeables["shift"],
-        'w': typeables["win"],
+        'a': keys["alt"],
+        'c': keys["control"],
+        's': keys["shift"],
+        'w': keys["win"],
         }
     interval_factor = 0.01
     interval_default = 0.0
@@ -286,7 +286,10 @@ class Key(DynStrActionBase):
             raise ActionError("Invalid key spec: %s" % spec)
 
         try:
-            code = typeables[keyname]
+            if keyname in symbols:
+                code = symbols[keyname]
+            else:
+                code = keys[keyname]
         except KeyError:
             raise ActionError("Invalid key name: %r" % keyname)
 

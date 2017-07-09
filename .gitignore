@@ -1,6 +1,7 @@
 # This .gitignore file is based on the template available here:
 # https://github.com/github/gitignore/blob/master/Python.gitignore
 
+# PyCharm
 .idea/
 
 # Byte-compiled / optimized / DLL files

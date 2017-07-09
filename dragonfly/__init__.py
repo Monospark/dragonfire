@@ -49,7 +49,7 @@ from .actions           import (ActionBase, DynStrActionBase, ActionError,
                                 Mimic, Playback, WaitWindow, FocusWindow,
                                 Function, StartApp, BringApp, PlaySound)
 from .actions.keyboard  import Typeable, Keyboard
-from .actions.typeables import typeables
+from .actions.typeables import keys, symbols
 from .actions.sendinput import (KeyboardInput, MouseInput, HardwareInput,
                                 make_input_array, send_input_array)
 
