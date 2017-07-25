@@ -766,26 +766,6 @@ class Whitespace(CharacterSeries):
         return self._str("")
 
 
-class Letters(CharacterSeries):
-
-    def __init__(self, name=None):
-        set = string.letters
-        CharacterSeries.__init__(self, set, name=name)
-
-    def __str__(self):
-        return self._str("")
-
-
-class Alphanumerics(CharacterSeries):
-
-    def __init__(self, name=None):
-        set = string.letters + string.digits
-        CharacterSeries.__init__(self, set, name=name)
-
-    def __str__(self):
-        return self._str("")
-
-
 #---------------------------------------------------------------------------
 
 class QuotedStringContent(ParserElementBase):

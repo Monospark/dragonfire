@@ -178,8 +178,8 @@ class _ActionRef(parser_.Sequence):
 class _Literal(parser_.Sequence):
 
     def __init__(self):
-        characters = string.letters + string.digits + "_-.'"
-        word = parser_.CharacterSeries(characters)
+        characters = "()[]{}<>"
+        word = parser_.CharacterSeries(characters, exclude=True)
         whitespace = parser_.Whitespace()
         elements = (
             word,
