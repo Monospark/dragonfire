@@ -109,7 +109,6 @@ class MappingRule(Rule):
 
     def __init__(self, name=None, mapping=None, extras=None, defaults=None,
                  exported=None, context=None):
-        if name     is None: name     = self.__class__.__name__
         if mapping  is None: mapping  = self.mapping
         if extras   is None: extras   = self.extras
         if defaults is None: defaults = self.defaults
@@ -126,7 +125,6 @@ class MappingRule(Rule):
             exported = self._default_exported
 
         # Type checking of initialization values.
-        assert isinstance(name, (str, unicode))
         assert isinstance(mapping, dict)
         for key, value in mapping.iteritems():
             assert isinstance(key, (str, unicode))

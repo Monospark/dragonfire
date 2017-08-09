@@ -88,7 +88,6 @@ class CompoundRule(Rule):
 
     """
 
-    _name    = None
     spec     = None
     extras   = ()
     defaults = ()
@@ -99,14 +98,12 @@ class CompoundRule(Rule):
 
     def __init__(self, name=None, spec=None, extras=None,
                  defaults=None, exported=None, context=None):
-        if name     is None: name     = self._name or self.__class__.__name__
         if spec     is None: spec     = self.spec
         if extras   is None: extras   = self.extras
         if defaults is None: defaults = self.defaults
         if exported is None: exported = self.exported
         if context  is None: context  = self.context
 
-        assert isinstance(name, (str, unicode))
         assert isinstance(spec, (str, unicode))
         assert isinstance(extras, (list, tuple))
         for item in extras:
