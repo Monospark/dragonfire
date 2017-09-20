@@ -78,7 +78,6 @@ class NatlinkEngine(EngineBase):
         self._log.debug("Engine %s: loading grammar %s."
                         % (self, grammar.name))
 
-        grammar.engine = self
         grammar_object = self.natlink.GramObj()
         wrapper = GrammarWrapper(grammar, grammar_object, self)
         grammar_object.setBeginCallback(wrapper.begin_callback)
@@ -140,37 +139,24 @@ class NatlinkEngine(EngineBase):
             self._log.exception("Failed to unload grammar %s: %s."
                                 % (grammar, e))
 
-    def set_exclusiveness(self, grammar, exclusive):
-        try:
-            grammar_object = self._get_grammar_wrapper(grammar).grammar_object
-            grammar_object.setExclusive(exclusive)
-        except self.natlink.NatError, e:
-            self._log.exception("Engine %s: failed set exclusiveness: %s."
-                                % (self, e))
-
     def activate_grammar(self, grammar):
         self._log.debug("Activating grammar %s." % grammar.name)
+        wrapper = self._get_grammar_wrapper(grammar)
+        grammar_object = wrapper.grammar_object
+        for rule in grammar.rules:
+            if not rule.exported:
+                continue
+            grammar_object.activate(rule.name, 0)
         pass
 
     def deactivate_grammar(self, grammar):
         self._log.debug("Deactivating grammar %s." % grammar.name)
-        pass
-
-    def activate_rule(self, rule, grammar):
-        self._log.debug("Activating rule %s in grammar %s." % (rule.name, grammar.name))
         wrapper = self._get_grammar_wrapper(grammar)
-        if not wrapper:
-            return
         grammar_object = wrapper.grammar_object
-        grammar_object.activate(rule.name, 0)
-
-    def deactivate_rule(self, rule, grammar):
-        self._log.debug("Deactivating rule %s in grammar %s." % (rule.name, grammar.name))
-        wrapper = self._get_grammar_wrapper(grammar)
-        if not wrapper:
-            return
-        grammar_object = wrapper.grammar_object
-        grammar_object.deactivate(rule.name)
+        for rule in grammar.rules:
+            if not rule.exported:
+                continue
+            grammar_object.deactivate(rule.name)
 
     def update_list(self, lst, grammar):
         wrapper = self._get_grammar_wrapper(grammar)
@@ -286,7 +272,6 @@ class GrammarWrapper(object):
         #  method for processing the recognition and return.
         s = state_.State(words_rules, self.grammar._rule_names, self.engine)
         for r in self.grammar._rules:
-            if not r.active: continue
             s.initialize_decoding()
             for result in r.decode(s):
                 if s.finished():

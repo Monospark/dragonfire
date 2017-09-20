@@ -97,12 +97,11 @@ class CompoundRule(Rule):
     #-----------------------------------------------------------------------
 
     def __init__(self, name=None, spec=None, extras=None,
-                 defaults=None, exported=None, context=None):
+                 defaults=None, exported=None):
         if spec     is None: spec     = self.spec
         if extras   is None: extras   = self.extras
         if defaults is None: defaults = self.defaults
         if exported is None: exported = self.exported
-        if context  is None: context  = self.context
 
         assert isinstance(spec, (str, unicode))
         assert isinstance(extras, (list, tuple))
@@ -116,7 +115,7 @@ class CompoundRule(Rule):
         self._defaults = dict(defaults)
 
         child = Compound(spec, extras=self._extras)
-        Rule.__init__(self, name, child, exported=exported, context=context)
+        Rule.__init__(self, name, child, exported=exported)
 
     #-----------------------------------------------------------------------
 
@@ -132,7 +131,6 @@ class CompoundRule(Rule):
         """
         # Prepare *extras* dict for passing to _process_recognition().
         extras = {
-                  "_grammar":  self.grammar,
                   "_rule":     self,
                   "_node":     node,
                  }

@@ -69,22 +69,16 @@ class Grammar(object):
     #-----------------------------------------------------------------------
     # Methods for initialization and cleanup.
 
-    def __init__(self, name, description=None, context=None, engine=None):
+    def __init__(self, name, context=None):
         self._name = name
-        self._description = description
         assert isinstance(context, Context) or context is None
         self._context = context
-
-        if engine:
-            self._engine = engine
-        else:
-            self._engine = get_engine()
-
         self._rules = []
         self._lists = []
         self._rule_names = None
         self._loaded = False
         self._enabled = True
+        self._active = False
         self._in_context = False
 
     def __del__(self):
@@ -135,17 +129,6 @@ class Grammar(object):
     enabled = property(lambda self: self._enabled,
                 doc = "Whether a grammar is active to receive"
                       " recognitions or not.")
-
-    def set_exclusiveness(self, exclusive):
-        self._engine.set_exclusiveness(self, exclusive)
-
-    def _set_engine(self, engine):
-        if self._loaded:
-            raise GrammarError(" Grammar %s: Cannot set engine while loaded."
-                               % self)
-        self._engine = engine
-    engine = property(lambda self: self._engine, _set_engine,
-                        doc="A grammar's SR engine.")
 
     #-----------------------------------------------------------------------
     # Methods for populating a grammar object instance.
@@ -227,59 +210,6 @@ class Grammar(object):
             self.add_list(dep)
         else: raise GrammarError("Unknown dependency type %s." % dep)
 
-    #-----------------------------------------------------------------------
-    # Methods for runtime modification of a grammar's contents.
-
-    def activate_rule(self, rule):
-        """
-            Activate a rule loaded in this grammar.
-
-            **Internal:** this method is normally *not* called 
-            directly by the user, but instead automatically when 
-            the rule itself is activated by the user.
-
-        """
-        self._log_load.debug("Grammar %s: activating rule %s." \
-                            % (self._name, rule.name))
-
-        # Check for correct type and valid rule instance.
-        assert self._loaded
-        assert isinstance(rule, Rule), \
-            "Dragonfly rule objects must be of the type dragonfly.rule.Rule"
-        if rule not in self._rules:
-            raise GrammarError("Rule '%s' not loaded in this grammar." \
-                % rule.name)
-        if not rule.exported:
-            return
-
-        # Activate the given rule.
-        self._engine.activate_rule(rule, self)
-
-    def deactivate_rule(self, rule):
-        """
-            Deactivate a rule loaded in this grammar.
-
-            **Internal:** this method is normally *not* called 
-            directly by the user, but instead automatically when 
-            the rule itself is deactivated by the user.
-
-        """
-        self._log_load.debug("Grammar %s: deactivating rule %s." \
-                            % (self._name, rule.name))
-
-        # Check for correct type and valid rule instance.
-        assert self._loaded
-        assert isinstance(rule, Rule), \
-            "Dragonfly rule objects must be of the type dragonfly.rule.Rule"
-        if rule not in self._rules:
-            raise GrammarError("Rule '%s' not loaded in this grammar." \
-                % rule.name)
-        if not rule.exported:
-            return
-
-        # Deactivate the given rule.
-        self._engine.deactivate_rule(rule, self)
-
     def update_list(self, lst):
         """
             Update a list's content loaded in this grammar.
@@ -302,7 +232,7 @@ class Grammar(object):
             raise GrammarError("List '%s' contains objects other than" \
                 "strings." % lst.name)
 
-        self._engine.update_list(lst, self)
+        get_engine().update_list(lst, self)
 
     #-----------------------------------------------------------------------
     # Methods for registering a grammar object instance in natlink.
@@ -311,20 +241,19 @@ class Grammar(object):
         """ Load this grammar into its SR engine. """
 
         self._log_load.debug("Grammar %s: loading into engine %s."
-                             % (self._name, self._engine))
+                             % (self._name, get_engine()))
 
         # Prevent loading the same grammar multiple times.
         if self._loaded:
             return
 
-        self._engine.load_grammar(self)
+        get_engine().load_grammar(self)
         self._loaded = True
         self._in_context = False
 
-        # Update all lists loaded in this grammar.
-        for rule in self._rules:
-            if rule.active != False:
-                rule.activate(force=True)
+        get_engine().activate_grammar(self)
+        self._active = True
+
         # Update all lists loaded in this grammar.
         for lst in self._lists:
             lst._update()
@@ -338,13 +267,9 @@ class Grammar(object):
         if not self._loaded: return
         self._log_load.debug("Grammar %s: unloading." % self._name)
 
-        self._engine.unload_grammar(self)
+        get_engine().unload_grammar(self)
         self._loaded = False
         self._in_context = False
-
-    def set_exclusiveness(self, exclusiveness):
-        """ Set the exclusiveness of this grammar. """
-        self._engine.set_exclusiveness(self, exclusiveness)
 
     def get_complexity_string(self):
         """
@@ -406,10 +331,18 @@ class Grammar(object):
                               % (self._name, executable, title))
 
         if not self._enabled:
-            # Grammar is disabled, so deactivate all active rules.
-            [r.deactivate() for r in self._rules if r.active]
+            # Grammar is disabled, so deactivate
+            if self._active:
+                get_engine().deactivate_grammar(self)
+                self._active = False
+            return
 
-        elif not self._context \
+        if self._enabled:
+            if not self._active:
+                get_engine().activate_grammar(self)
+                self._active = True
+
+        if not self._context \
                 or self._context.matches(executable, title, handle):
             # Grammar is within context.
             if not self._in_context:
@@ -425,10 +358,11 @@ class Grammar(object):
             if self._in_context:
                 self._in_context = False
                 self.exit_context()
-            [r.deactivate() for r in self._rules if r.active]
+            get_engine().deactivate_grammar(self)
+            self._active = False
 
         self._log_begin.debug("Grammar %s:     active rules: %s."
-            % (self._name, [r.name for r in self._rules if r.active]))
+            % (self._name, self._rules))
 
     def enter_context(self):
         """

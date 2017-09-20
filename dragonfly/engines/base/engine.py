@@ -65,8 +65,6 @@ class EngineBase(object):
     #-----------------------------------------------------------------------
 
     def __init__(self):
-        # Register initialization of this engine.
-        dragonfly.engines.register_engine_init(self)
 
         self._grammar_wrappers = {}
 

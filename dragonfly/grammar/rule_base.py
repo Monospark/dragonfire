@@ -66,8 +66,7 @@ class Rule(object):
     # Counter ID used for anonymous rules to give them a unique name.
     _next_anonymous_id = 0
 
-    def __init__(self, name=None, element=None, context=None,
-                 imported=False, exported=False):
+    def __init__(self, name=None, element=None, imported=False, exported=False):
         # The default argument for *element* is NOT acceptable; this
         #  construction is used for backwards compatibility and argument
         #  order.
@@ -81,12 +80,6 @@ class Rule(object):
                                           self.__class__.__name__)
             Rule._next_anonymous_id += 1
         self._name = name
-
-        self._active = None
-        self._enabled = True
-        assert isinstance(context, Context) or context is None
-        self._context = context
-        self._grammar = None
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self._name)
@@ -106,48 +99,6 @@ class Rule(object):
                         doc="This rule's imported status. See"
                             " :ref:`RefObjectModelRulesImported` for"
                             " more info.  (Read-only)")
-    active   = property(lambda self: self._active,
-                        doc="This rule's active state.  (Read-only)")
-    enabled  = property(lambda self: self._enabled,
-                        doc="This rule's enabled state. An enabled rule"
-                            " is active when its context matches, a"
-                            " disabled rule is never active regardless"
-                            " of context.  (Read-only)")
-
-    def enable(self):
-        """
-            Enable this grammar so that it is active to receive
-            recognitions when its context matches.
-
-        """
-        self._enabled = True
-        self.activate()
-
-    def disable(self):
-        """
-            Disable this grammar so that it is never active to
-            receive recognitions, regardless of whether its context
-            matches or not.
-
-        """
-        self._enabled = False
-        if self._active:
-            self.deactivate()
-
-    def _get_grammar(self):
-        return self._grammar
-    def _set_grammar(self, grammar):
-#        if self._grammar is None:
-            self._grammar = grammar
-#        elif grammar is None:
-#            self._grammar = None
-#        elif grammar != self._grammar:
-#            self._log.error("rule: %s" % self)
-#            raise TypeError("The grammar object a Dragonfly rule"
-#                " cannot be changed after it has been set (%s != %s)."
-#                % (grammar, self._grammar))
-    grammar = property(_get_grammar, _set_grammar,
-                       doc="This rule's grammar object.  (Set once)")
 
     #-----------------------------------------------------------------------
     # Internal methods for controlling a rules active state.
@@ -159,11 +110,7 @@ class Rule(object):
             This method is called when the speech recognition 
             engine detects that the user has begun to speak a 
             phrase.  It is called by the rule's containing grammar
-            if the grammar and this rule are active.
-
-            The default implementation of this method checks
-            whether this rule's context matches, and if it does
-            this method calls
+            if the grammar is active.
             :meth:`._process_begin`.
 
             Arguments:
@@ -173,47 +120,8 @@ class Rule(object):
              - *handle* -- window handle to the foreground window
 
         """
-        assert self._grammar
-        if not self._enabled:
-            if self._active:
-                self.deactivate()
-            return
-        if self._context:
-            if self._context.matches(executable, title, handle):
-                if not self._active:
-                    self.activate()
-                self._process_begin()
-            else:
-                if self._active:
-                    self.deactivate()
-        else:
-            if not self._active:
-                self.activate()
-            self._process_begin()
 
-    def activate(self, force=False):
-        if not self._grammar:
-            raise TypeError("A Dragonfly rule cannot be activated"
-                            " before it is bound to a grammar.")
-        if not self._enabled:
-            if self._active:
-                self.deactivate()
-            return
-        if not self._active or force:
-            self._grammar.activate_rule(self)
-            self._active = True
-
-    def deactivate(self):
-        if not self._grammar:
-            raise TypeError("A Dragonfly rule cannot be deactivated"
-                            " before it is bound to a grammar.")
-        if self._active:
-            try:
-                self._grammar.deactivate_rule(self)
-            except Exception, e:
-                self._log.warning("Failed to deactivate rule: %s (%s)"
-                                  % (self, e))
-            self._active = False
+        self._process_begin()
 
     #-----------------------------------------------------------------------
     # Compilation related methods.
@@ -325,8 +233,6 @@ class ImportedRule(Rule):
         self._name = name
         self._imported = True
         self._exported = False
-        self._active = False
-        self._grammar = None
 
     #-----------------------------------------------------------------------
     # Compilation related methods.

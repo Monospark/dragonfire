@@ -107,12 +107,10 @@ class MappingRule(Rule):
 
     #-----------------------------------------------------------------------
 
-    def __init__(self, name=None, mapping=None, extras=None, defaults=None,
-                 exported=None, context=None):
+    def __init__(self, name=None, mapping=None, extras=None, defaults=None, exported=None):
         if mapping  is None: mapping  = self.mapping
         if extras   is None: extras   = self.extras
         if defaults is None: defaults = self.defaults
-        if context  is None: context  = self.context
 
         # Complex handling of exported, because of clashing use of the
         #  exported name at the class level: property & class-value.
@@ -146,8 +144,7 @@ class MappingRule(Rule):
 
         if children:  element = Alternative(children)
         else:         element = None
-        Rule.__init__(self, self._name, element, exported=exported,
-                      context=context)
+        Rule.__init__(self, self._name, element, exported=exported)
 
     #-----------------------------------------------------------------------
 
@@ -158,7 +155,6 @@ class MappingRule(Rule):
         if hasattr(value, "copy_bind"):        
             # Prepare *extras* dict for passing to _copy_bind().
             extras = {
-                      "_grammar":  self.grammar,
                       "_rule":     self,
                       "_node":     node,
                      }
@@ -189,7 +185,6 @@ class MappingRule(Rule):
 
         # Prepare *extras* dict for passing to _process_recognition().
         extras = {
-                  "_grammar":  self.grammar,
                   "_rule":     self,
                   "_node":     node,
                  }
