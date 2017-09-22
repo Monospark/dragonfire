@@ -81,7 +81,6 @@ class _Stuff(parser_.Sequence):
 stuff = _Stuff()
 
 
-
 class _Single(parser_.Sequence):
 
     def __init__(self):
@@ -223,14 +222,12 @@ stuff.initialize()
 
 class Compound(elements_.Alternative):
 
-    _log = logging.getLogger("compound.parse")
-    _parser = parser_.Parser(stuff, _log)
+    _parser = parser_.Parser(stuff, logging.getLogger("compound.parse"))
 
     def __init__(self, spec, extras=None, actions=None, name=None,
-                 value=None, value_func=None, elements=None, default=None):
+                 value=None, elements=None, default=None):
         self._spec = spec
         self._value = value
-        self._value_func = value_func
 
         if extras   is None:   extras   = {}
         if actions  is None:   actions  = {}
@@ -241,17 +238,17 @@ class Compound(elements_.Alternative):
             mapping = {}
             for element in extras:
                 if not isinstance(element, elements_.ElementBase):
-                    self._log.error("Invalid extras item: %s" % element)
+                    logging.getLogger("compound.parse").error("Invalid extras item: %s" % element)
                     raise TypeError("Invalid extras item: %s" % element)
                 if not element.name:
-                    self._log.error("Extras item does not have a name: %s" % element)
+                    logging.getLogger("compound.parse").error("Extras item does not have a name: %s" % element)
                     raise TypeError("Extras item does not have a name: %s" % element)
                 if element.name in mapping:
-                    self._log.warning("Multiple extras items with the same name: %s" % element)
+                    logging.getLogger("compound.parse").warning("Multiple extras items with the same name: %s" % element)
                 mapping[element.name] = element
             extras = mapping
         elif not isinstance(extras, dict):
-            self._log.error("Invalid extras argument: %s" % extras)
+            logging.getLogger("compound.parse").error("Invalid extras argument: %s" % extras)
             raise TypeError("Invalid extras argument: %s" % extras)
 
         # Temporary transition code so that both "elements" and "extras"
@@ -269,7 +266,7 @@ class Compound(elements_.Alternative):
 
         element = self._parser.parse(spec)
         if not element:
-            self._log.error("Invalid compound spec: %r" % spec)
+            logging.getLogger("compound.parse").error("Invalid compound spec: %r" % spec)
             raise SyntaxError("Invalid compound spec: %r" % spec)
         elements_.Alternative.__init__(self, (element,), name=name,
                                        default=default)
@@ -281,22 +278,7 @@ class Compound(elements_.Alternative):
         return "%s(%s)" % (self.__class__.__name__, arguments)
 
     def value(self, node):
-        if self._value_func is not None:
-            # Prepare *extras* dict for passing to value_func().
-            extras = {"_node": node}
-            for name, element in self._extras.iteritems():
-                extra_node = node.get_child_by_name(name, shallow=True)
-                if extra_node:
-                    extras[name] = extra_node.value()
-                elif element.has_default():
-                    extras[name] = element.default
-            try:
-                value = self._value_func(node, extras)
-            except Exception, e:
-                self._log.warning("Exception from value_func: %s" % e)
-                raise
-            return value
-        elif self._value is not None:
+        if self._value is not None:
             return self._value
         else:
             return elements_.Alternative.value(self, node)

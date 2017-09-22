@@ -124,6 +124,7 @@ class MappingRule(Rule):
 
         # Type checking of initialization values.
         assert isinstance(mapping, dict)
+        assert len(mapping) > 0
         for key, value in mapping.iteritems():
             assert isinstance(key, (str, unicode))
         assert isinstance(extras, (list, tuple))
@@ -141,9 +142,7 @@ class MappingRule(Rule):
         for spec, value in self._mapping.iteritems():
             c = Compound(spec, elements=self._extras, value=value)
             children.append(c)
-
-        if children:  element = Alternative(children)
-        else:         element = None
+        element = Alternative(children)
         Rule.__init__(self, self._name, element, exported=exported)
 
     #-----------------------------------------------------------------------
@@ -218,6 +217,6 @@ class MappingRule(Rule):
         """
         if isinstance(value, ActionBase):
             value.execute(extras)
-        elif self._log_proc:
-            self._log_proc.warning("%s: mapping value is not an action,"
+        elif logging.getLogger("grammar.process"):
+            logging.getLogger("grammar.process").warning("%s: mapping value is not an action,"
                                    " cannot execute." % self)

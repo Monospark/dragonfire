@@ -153,7 +153,6 @@ class Grammar(object):
 
         # Append the rule to this grammar object's internal list.
         self._rules.append(rule)
-        rule.grammar = self
 
     def remove_rule(self, rule):
         """ Remove a rule from this grammar. """
@@ -170,7 +169,6 @@ class Grammar(object):
 
         # Remove the rule from this grammar object's internal list.
         self._rules.remove(rule)
-        rule.grammar = None
 
     def add_list(self, lst):
         """ Add a list to this grammar. """
@@ -250,9 +248,6 @@ class Grammar(object):
         get_engine().load_grammar(self)
         self._loaded = True
         self._in_context = False
-
-        get_engine().activate_grammar(self)
-        self._active = True
 
         # Update all lists loaded in this grammar.
         for lst in self._lists:

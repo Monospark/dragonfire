@@ -32,7 +32,6 @@ Detecting sleep mode
 from ..base        import EngineBase, EngineError, MimicFailure
 from .dictation    import NatlinkDictationContainer
 from .recobs       import NatlinkRecObsManager
-from .timer        import NatlinkTimerManager
 from .compiler     import NatlinkCompiler
 import dragonfly.grammar.state as state_
 
@@ -60,7 +59,6 @@ class NatlinkEngine(EngineBase):
 
         self._grammar_count = 0
         self._recognition_observer_manager = NatlinkRecObsManager(self)
-        self._timer_manager = NatlinkTimerManager(0.02, self)
 
     def connect(self):
         """ Connect to natlink. """
@@ -270,7 +268,7 @@ class GrammarWrapper(object):
         # Iterates through this grammar's rules, attempting
         #  to decode each.  If successful, call that rule's
         #  method for processing the recognition and return.
-        s = state_.State(words_rules, self.grammar._rule_names, self.engine)
+        s = state_.State(words_rules, self.grammar._rule_names)
         for r in self.grammar._rules:
             s.initialize_decoding()
             for result in r.decode(s):

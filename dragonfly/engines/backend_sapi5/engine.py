@@ -423,7 +423,7 @@ class GrammarWrapper(object):
                 if not func(words):
                     return
 
-            s = State(results, rule_set, self.engine)
+            s = State(results, rule_set)
             for r in self.grammar._rules:
                 if r.name != rule_name:
                     continue

@@ -26,11 +26,17 @@ Main SR engine back-end interface
 
 import logging
 import traceback
+
 from .base import EngineBase, EngineError, MimicFailure
 
 
 engine_name = None
 _default_engine = None
+
+def start_server():
+    global _default_engine
+    from dragonfly.engines.backend_remote.server import ServerEngine, ServerEngineType
+    _default_engine = ServerEngine(ServerEngineType.NATLINK)
 
 
 def get_engine():
@@ -39,6 +45,17 @@ def get_engine():
 
     if _default_engine:
         return _default_engine
+
+    if not engine_name:
+        from dragonfly.engines.backend_remote.client import ClientEngine
+        from dragonfly.engines.backend_remote.server import ServerEngine, ServerEngineType
+        server_type = ServerEngine.get_server_engine()
+        if server_type == ServerEngineType.NATLINK:
+            _default_engine = ClientEngine("natlink")
+            return _default_engine
+        elif server_type == ServerEngineType.SAPI5:
+            _default_engine = ClientEngine("sapi5")
+            return _default_engine
 
     if not engine_name or engine_name == "natlink":
         # Attempt to retrieve the natlink back-end.

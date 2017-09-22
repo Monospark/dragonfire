@@ -36,10 +36,9 @@ class State(object):
     #-----------------------------------------------------------------------
     # Methods for initialization.
 
-    def __init__(self, results, rule_names, engine):
+    def __init__(self, results, rule_names):
         self._results = results
         self._rule_names = rule_names
-        self._engine = engine
         self._index = 0
         self._data = {}
         self._depth = 0
@@ -185,7 +184,7 @@ class State(object):
                 node = node.parent
             parent = node
             node = Node(parent, frame.actor, self._results,
-                        frame.begin, frame.end, frame.depth, self._engine)
+                        frame.begin, frame.end, frame.depth)
             if parent: parent.children.append(node)
             else: root = node
 
@@ -197,12 +196,11 @@ class State(object):
 class Node(object):
 
     __slots__ = ("parent", "children", "actor", "results",
-                 "begin", "end", "depth", "engine")
+                 "begin", "end", "depth")
 
-    def __init__(self, parent, actor, results, begin, end, depth, engine):
+    def __init__(self, parent, actor, results, begin, end, depth):
         self.parent = parent; self.actor = actor; self.results = results
         self.begin = begin; self.end = end; self.depth = depth
-        self.engine = engine
         self.children = []
 
     def __str__(self):

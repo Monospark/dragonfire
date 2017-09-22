@@ -62,6 +62,7 @@ classes listed above:
 
 import types
 import logging
+
 from .rule_base  import Rule
 from .list       import ListBase, DictList
 
@@ -73,9 +74,6 @@ class ElementBase(object):
     """ Base class for all other element classes. """
 
     name = "uninitialized"
-
-    _log_decode = logging.getLogger("grammar.decode")
-    _log_eval = logging.getLogger("grammar.eval")
 
     def __init__(self, name=None, default=None):
         """
@@ -924,7 +922,8 @@ class Dictation(ElementBase):
         return
 
     def value(self, node):
-        return node.engine.DictationContainer(node.words())
+        from dragonfly.engines import get_engine
+        return get_engine().DictationContainer(node.words())
 
 
 #---------------------------------------------------------------------------
