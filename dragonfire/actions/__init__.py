@@ -18,34 +18,17 @@
 #   <http://www.gnu.org/licenses/>.
 #
 
-"""
-This script installs a development link to the Dragonfly 
-source directory into the local Python distribution.
-
-This is useful for Dragonfly developers, because it lets 
-them have a working copy checked out from the Dragonfly 
-repository somewhere, and at the same time have that copy 
-directly accessible through ``import dragonfire``.
-
-"""
-
-
-import sys
-import os
-import os.path
-import subprocess
-
-
-def main():
-    from pkg_resources import resource_filename
-    setup_path = os.path.abspath(resource_filename(__name__, "setup.py"))
-
-    commands = ["egg_info", "--tag-build=.dev", "-r", "develop"]
-
-    arguments = [sys.executable, setup_path] + commands
-    os.chdir(os.path.dirname(setup_path))
-    subprocess.call(arguments)
- 
-
-if __name__ == "__main__":
-    main()
+from .action_base         import (ActionBase, DynStrActionBase,
+                                  Repeat, ActionError)
+from .action_key          import Key
+from .action_text         import Text
+from .action_mouse        import Mouse
+from .action_paste        import Paste
+from .action_pause        import Pause
+from .action_mimic        import Mimic
+from .action_playback     import Playback
+from .action_function     import Function
+from .action_waitwindow   import WaitWindow
+from .action_focuswindow  import FocusWindow
+from .action_startapp     import StartApp, BringApp
+from .action_playsound    import PlaySound

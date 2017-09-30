@@ -18,34 +18,30 @@
 #   <http://www.gnu.org/licenses/>.
 #
 
-"""
-This script installs a development link to the Dragonfly 
-source directory into the local Python distribution.
 
-This is useful for Dragonfly developers, because it lets 
-them have a working copy checked out from the Dragonfly 
-repository somewhere, and at the same time have that copy 
-directly accessible through ``import dragonfire``.
-
-"""
+import unittest
+from dragonfire.windows.window import Window
 
 
-import sys
-import os
-import os.path
-import subprocess
+#===========================================================================
 
+class TestWindow(unittest.TestCase):
 
-def main():
-    from pkg_resources import resource_filename
-    setup_path = os.path.abspath(resource_filename(__name__, "setup.py"))
+    def setUp(self):
+        pass
 
-    commands = ["egg_info", "--tag-build=.dev", "-r", "develop"]
+    def test_set_handle(self):
+        """ Test access to Window.handle property. """
 
-    arguments = [sys.executable, setup_path] + commands
-    os.chdir(os.path.dirname(setup_path))
-    subprocess.call(arguments)
- 
+        # Verify that only integers and longs are accepted.
+        Window(0)
+        Window(int(1))
+        Window(long(2))
+        self.assertRaises(TypeError, Window, [None])
+        self.assertRaises(TypeError, Window, ["string"])
+        self.assertRaises(TypeError, Window, [3.4])
+
+#===========================================================================
 
 if __name__ == "__main__":
-    main()
+    unittest.main()

@@ -1,8 +1,0 @@
-
-.. _RefConfig:
-
-Configuration toolkit
-****************************************************************************
-
-.. automodule:: dragonfly.config
-   :members: Config, Section, Item

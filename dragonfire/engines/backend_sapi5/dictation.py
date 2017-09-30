@@ -1,4 +1,4 @@
-#
+﻿#
 # This file is part of Dragonfly.
 # (c) Copyright 2007, 2008 by Christo Butcher
 # Licensed under the LGPL.
@@ -19,33 +19,22 @@
 #
 
 """
-This script installs a development link to the Dragonfly 
-source directory into the local Python distribution.
-
-This is useful for Dragonfly developers, because it lets 
-them have a working copy checked out from the Dragonfly 
-repository somewhere, and at the same time have that copy 
-directly accessible through ``import dragonfire``.
+Dictation container for the SAPI5 engine.
 
 """
 
-
-import sys
-import os
-import os.path
-import subprocess
+import logging
+from ..base import DictationContainerBase
 
 
-def main():
-    from pkg_resources import resource_filename
-    setup_path = os.path.abspath(resource_filename(__name__, "setup.py"))
+#---------------------------------------------------------------------------
+# SAPI5 dictation class -- container for a series of dictated words.
 
-    commands = ["egg_info", "--tag-build=.dev", "-r", "develop"]
+class Sapi5DictationContainer(DictationContainerBase):
 
-    arguments = [sys.executable, setup_path] + commands
-    os.chdir(os.path.dirname(setup_path))
-    subprocess.call(arguments)
- 
+    def __init__(self, words):
+        DictationContainerBase.__init__(self, words=words)
 
-if __name__ == "__main__":
-    main()
+    def format(self):
+        """ Format and return this dictation. """
+        return " ".join(self._words)

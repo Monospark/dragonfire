@@ -1,4 +1,4 @@
-#
+﻿#
 # This file is part of Dragonfly.
 # (c) Copyright 2007, 2008 by Christo Butcher
 # Licensed under the LGPL.
@@ -18,34 +18,20 @@
 #   <http://www.gnu.org/licenses/>.
 #
 
-"""
-This script installs a development link to the Dragonfly 
-source directory into the local Python distribution.
-
-This is useful for Dragonfly developers, because it lets 
-them have a working copy checked out from the Dragonfly 
-repository somewhere, and at the same time have that copy 
-directly accessible through ``import dragonfire``.
-
-"""
+import unittest
+from dragonfire.engines import get_engine, EngineBase, EngineError
 
 
-import sys
-import os
-import os.path
-import subprocess
+#---------------------------------------------------------------------------
 
+class TestEngineNonexistent(unittest.TestCase):
 
-def main():
-    from pkg_resources import resource_filename
-    setup_path = os.path.abspath(resource_filename(__name__, "setup.py"))
-
-    commands = ["egg_info", "--tag-build=.dev", "-r", "develop"]
-
-    arguments = [sys.executable, setup_path] + commands
-    os.chdir(os.path.dirname(setup_path))
-    subprocess.call(arguments)
- 
-
-if __name__ == "__main__":
-    main()
+    def test_get_engine_nonexistent(self):
+        """ Verify that getting a nonexistent engine raises an error. """
+        try:
+            engine = get_engine("nonexistent")
+        except EngineError:
+            pass  # Expected exception, so ignore.
+        else:
+            assert False, ("Getting a nonexistent engine should have"
+                           " raised an exception, but it didn't!")

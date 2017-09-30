@@ -1,4 +1,4 @@
-#
+﻿#
 # This file is part of Dragonfly.
 # (c) Copyright 2007, 2008 by Christo Butcher
 # Licensed under the LGPL.
@@ -19,33 +19,29 @@
 #
 
 """
-This script installs a development link to the Dragonfly 
-source directory into the local Python distribution.
-
-This is useful for Dragonfly developers, because it lets 
-them have a working copy checked out from the Dragonfly 
-repository somewhere, and at the same time have that copy 
-directly accessible through ``import dragonfire``.
+PlaySound action
+============================================================================
 
 """
 
-
-import sys
-import os
-import os.path
-import subprocess
+import winsound
+from .action_base         import ActionBase, ActionError
 
 
-def main():
-    from pkg_resources import resource_filename
-    setup_path = os.path.abspath(resource_filename(__name__, "setup.py"))
+#---------------------------------------------------------------------------
 
-    commands = ["egg_info", "--tag-build=.dev", "-r", "develop"]
+class PlaySound(ActionBase):
 
-    arguments = [sys.executable, setup_path] + commands
-    os.chdir(os.path.dirname(setup_path))
-    subprocess.call(arguments)
- 
+    def __init__(self, name=None, file=None):
+        ActionBase.__init__(self)
+        if name is not None:
+            self._name = name
+            self._flags = winsound.SND_ASYNC | winsound.SND_ALIAS
+        elif file is not None:
+            self._name = file
+            self._flags = winsound.SND_ASYNC | winsound.SND_FILENAME
 
-if __name__ == "__main__":
-    main()
+        self._str = str(self._name)
+
+    def _execute(self, data=None):
+        winsound.PlaySound(self._name, self._flags)

@@ -45,13 +45,13 @@ def read(*names):
     return open(os.path.join(os.path.dirname(__file__), *names)).read()
 
 setup(
-      name          = "dragonfly",
+      name          = "dragonfire",
       version       = release,
       description   = "Speech recognition extension library",
       author        = "Christo Butcher",
-      author_email  = "dist.dragonfly@twizzy.biz",
+      author_email  = "dist.dragonfire@twizzy.biz",
       license       = "LICENSE.txt",
-      url           = "https://github.com/t4ngo/dragonfly",
+      url           = "https://github.com/t4ngo/dragonfire",
       zip_safe      = False,  # To unzip documentation files.
       long_description = read("README.md"),
 
@@ -71,5 +71,5 @@ setup(
 
       packages=find_packages(),
 
-      test_suite="dragonfly.test.suites.natlink_suite",
+      test_suite="dragonfire.test.suites.natlink_suite",
      )

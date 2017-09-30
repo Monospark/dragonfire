@@ -68,8 +68,8 @@ def build_distribution_and_upload(directory, setup_path):
     if extension != ".egg":
         raise RuntimeError("Most recent package not an egg file: %r"
                            % most_recent_path)
-    if not basename.startswith("dragonfly-"):
-        raise RuntimeError("Most recent package not for dragonfly: %r"
+    if not basename.startswith("dragonfire-"):
+        raise RuntimeError("Most recent package not for dragonfire: %r"
                            % most_recent_path)
     if basename[-6:-3] != "-py":
         raise RuntimeError("Most recent package funny name: %r"
@@ -102,7 +102,7 @@ def load_gcode_credentials(path):
 def upload_gcode_single(path, summary, labels, username, password):
     googlecode_upload.upload(
                              file=path,
-                             project_name="dragonfly",
+                             project_name="dragonfire",
                              user_name=username,
                              password=password,
                              summary=summary,

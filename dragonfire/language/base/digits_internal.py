@@ -19,33 +19,16 @@
 #
 
 """
-This script installs a development link to the Dragonfly 
-source directory into the local Python distribution.
-
-This is useful for Dragonfly developers, because it lets 
-them have a working copy checked out from the Dragonfly 
-repository somewhere, and at the same time have that copy 
-directly accessible through ``import dragonfire``.
+This file implements base classes for structured number grammar
+elements.
 
 """
 
-
-import sys
-import os
-import os.path
-import subprocess
+from ...grammar.elements  import Alternative, Repetition, Compound
 
 
-def main():
-    from pkg_resources import resource_filename
-    setup_path = os.path.abspath(resource_filename(__name__, "setup.py"))
+#---------------------------------------------------------------------------
+# Digits content class.
 
-    commands = ["egg_info", "--tag-build=.dev", "-r", "develop"]
-
-    arguments = [sys.executable, setup_path] + commands
-    os.chdir(os.path.dirname(setup_path))
-    subprocess.call(arguments)
- 
-
-if __name__ == "__main__":
-    main()
+class DigitsContentBase(object):
+    digits = None
